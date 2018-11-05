@@ -273,17 +273,6 @@ const Chart = {
           return (this.titleHeight + this.subtitleHeight);
         },
       },
-      mounted() {
-        this.initalizeChart();
-      },
-      watch: {
-        chartData: {
-          handler() {
-            this.refreshChart();
-          },
-          deep: true,
-        },
-      },
       template:
         '<svg :id=\'this.chartData.selector\' x=\'5\' y=\'5\' :height=\'this.height + 20\' :width=\'this.width + 20\'> </svg>',
     });
