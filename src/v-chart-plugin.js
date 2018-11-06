@@ -254,7 +254,7 @@ const Chart = {
         },
       },
       template:
-        '<svg :id=\'this.chartData.selector\' x=\'5\' y=\'5\' :height=\'this.height + 20\' :width=\'this.width + 20\'> </svg>',
+        '<svg :id=\'this.chartData.selector\' x=\'5\' y=\'5\' :height=\'parseInt(this.height) + 20\' :width=\'parseInt(this.width) + 20\'> </svg>',
     });
   },
 };
