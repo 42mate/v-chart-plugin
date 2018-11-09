@@ -32,12 +32,22 @@ const Chart = {
         };
       },
       methods: {
+        mapTypeChart(chart) {
+          let types = {
+                'bar': 'barChart',
+                'vbar':  'vBarChart',
+                'line': 'lineGraph',
+                'pie': 'pieChart',
+                'area': 'areaChart',
+            }
+            return types[chart];
+        },
         /**
          * Generate a new Chart of type chartType
          * @memberOf Chart
          */
         initalizeChart() {
-          const cs = this[this.chartData.chartType]('init');
+          const cs = this[this.mapTypeChart(this.chartData.chartType)]('init');
           this.drawTitle();
           this.generateLegend(cs);
         },
@@ -47,7 +57,7 @@ const Chart = {
          */
         refreshChart() {
           this.clearAxis();
-          this[this.chartData.chartType]('refresh');
+          this[this.mapTypeChart(this.chartData.chartType)]('refresh');
         },
         /**
          * Remove x and y axes
