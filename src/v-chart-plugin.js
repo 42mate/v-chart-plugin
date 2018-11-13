@@ -135,25 +135,29 @@ const Chart = {
          */
         generateLegend(cs) {
           if (this.chartData.legends && this.chartData.legends.enabled === true) {
-            d3.select(`#${this.chartData.selector}`)
+            cs.palette.lineFill = (Array.isArray(cs.palette.lineFill)) ? cs.palette.lineFill : new Array(cs.palette.lineFill); 
+            cs.palette.fill = (Array.isArray(cs.palette.fill)) ? cs.palette.fill : new Array(cs.palette.fill); 
+            this.metric.forEach( (e, i) => {
+              d3.select(`#${this.chartData.selector}`)
               .append('text')
               .attr('x', this.width - 60)
-              .attr('y', this.height * 0.95)
+              .attr('y', this.height * 0.95 - (i * 15))
               .style('text-anchor', 'middle')
-              .text(this.chartData.metric);
+              .text(this.metric[i]);
 
             d3.select(`#${this.chartData.selector}`)
               .append("g")
               .attr("class", "legends")
               .append("rect")
               .attr('x', this.width - 30)
-              .attr('y', this.height * 0.95 - 10)
+              .attr('y', this.height * 0.95 - (i * 15) - 10)
               .attr("width", 30)
               .attr("height", 10)
               .style("fill", function () {
-                const fill = cs.palette.lineFill || cs.palette.fill;
+              const fill = cs.palette.lineFill[i] || cs.palette.fill[i];
                 return fill;
               });
+            })
           }
         },
 
@@ -171,12 +175,34 @@ const Chart = {
          * @returns {Object} normalized dataset
          */
         ds() {
-          return this.chartData.data.map((d) => {
-            const td = {};
-            td.metric = this.chartData.metric ? d[this.chartData.metric] : d;
+          //TODO add in support for arrays with undefined metric
+          const ds = { metric: [] };
+          if (!Array.isArray(this.chartData.metric)){
+            ds.metric.push(this.chartData.metric);
+          } else {
+            ds.metric = this.chartData.metric;
+          }
+          ds.dim = this.chartData.dim;
+          ds.data = this.chartData.data;
+
+          return ds.data.map((d) => {
+            const td = {
+              metric: []
+            };
+            ds.metric.forEach(function(e, i){
+              td.metric[i] = d[e] || 0;
+            })
             td.dim = this.chartData.dim ? d[this.chartData.dim] : null;
             return td;
           });
+        },
+        /**
+         * Metric getter function
+         * @memberOf Chart
+         * @returns {array} Metrics 
+         */
+        metric() {
+          return (Array.isArray(this.chartData.metric)) ? this.chartData.metric : new Array(this.chartData.metric);
         },
         /**
          * Height getter function
@@ -201,8 +227,12 @@ const Chart = {
          */
         max() {
           let max = 0;
-          this.ds.forEach((e) => {
-            max = max > e.metric ? max : e.metric;
+          var results = []; 
+          this.ds.forEach(e => {
+            results = results.concat([...e.metric]);
+          });
+          results.forEach((e) => {
+            max = max > e ? max : e;
           });
           return max;
         },
@@ -212,16 +242,12 @@ const Chart = {
          * @returns {number} Min value for metric
          */
         min() {
-          return Math.min(...this.ds.map(o => o.metric));
-        },
-        /**
-         * Gets the height of the title 
-         * @memberOf Chart
-         * @returns {number} Height of the chart title
-         */
-        titleHeight() {
-          if (this.chartData.title) return this.chartData.textHeight || 25;
-          return 0;
+          let max = 0;
+          var results = []; 
+          this.ds.forEach(e => {
+            results = results.concat([...e.metric]);
+          });
+          return Math.min(...results.map(o => o));
         },
         /**
          * Gets the height of the dispaly area
@@ -234,6 +260,15 @@ const Chart = {
           } else {
             return this.height;
           }
+        },
+        /**
+         * Gets the height of the title 
+         * @memberOf Chart
+         * @returns {number} Height of the chart title
+         */
+        titleHeight() {
+          if (this.chartData.title) return this.chartData.textHeight || 25;
+          return 0;
         },
         /**
          * Gets the subtitle height
