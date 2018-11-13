@@ -39,6 +39,7 @@ const Chart = {
                 'line': 'lineGraph',
                 'pie': 'pieChart',
                 'area': 'areaChart',
+                'scatter': 'scatterPlot'
             }
             return types[chart];
         },
